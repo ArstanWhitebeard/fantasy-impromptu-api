@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/ArstanWhitebeard/fantasy-impromptu-api/issues"
   },
-  "homepage": "https://github.com/ArstanWhitebeard/fantasy-impromptu-api#readme"
+  "homepage": "https://github.com/ArstanWhitebeard/fantasy-impromptu-api#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "mysql": "^2.11.1"
+  }
 }
