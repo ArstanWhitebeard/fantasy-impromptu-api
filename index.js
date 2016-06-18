@@ -4,66 +4,77 @@ var mysql      = require('mysql');
 
 // TODO pull out config.js
 // TODO set up read-only db user!
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database : 'olympics2016'
+var connections = mysql.createPool({
+    connectionLimit : 10, //important
+    host     : 'localhost',
+    user     : 'root',
+    password : 'root',
+    database : 'olympics2016',
+    debug    :  false
 });
-
 
 
 app.get('/teamstandings/', function (req, res) {
-  connection.connect();
+  connections.getConnection(function(err,connection){
+      if (err) {
+        connection.release();
+        res.json({"code" : 500, "status" : "Internal Server Error"});
+        return;
+      }
 
-  connection.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
-    if (!err)
-      res.send(rows);
-    else
-      res.send([]);
-  });
+      connection.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
+        if (!err)
+          res.send(rows);
+        else
+          res.send([]);
+      });
 
-  connection.end();
-
+      connection.release();
+    });
 });
 
 app.get('/countries/', function (req, res) {
-  connection.connect();
-
-  connection.query('SELECT * from countries ORDER BY pool ASC, last_olympics_score DESC', function(err, rows, fields) {
-    if (!err) {
-      var result = {"pools" : []};
-      var pool = null;
-
-      for(var i=0; i<rows.length; ++i) {
-        var rawRow = rows[i];
-        var row = {
-          "name" : rawRow.name,
-          "flagPath" : rawRow.flag_path,
-          "isActive" : rawRow.is_active == 1,
-          "lastOlympicsScore" : rawRow.last_olympics_score
-        };
-
-        if (pool == null || rawRow.pool != pool.index) {
-          if (pool != null)
-            result.pools.push(pool);
-          pool = {"index":rawRow.pool, "countries":[row]};
-        } else {
-          pool.countries.push(row);
-        }
+  connections.getConnection(function(err,connection){
+      if (err) {
+        connection.release();
+        res.json({"code" : 500, "status" : "Internal Server Error"});
+        return;
       }
 
-      result.pools.push(pool);
+      connection.query('SELECT * from countries ORDER BY pool ASC, last_olympics_score DESC', function(err, rows, fields) {
+        if (!err) {
+          var result = {"pools" : []};
+          var pool = null;
 
-      res.send(result);
+          for(var i=0; i<rows.length; ++i) {
+            var rawRow = rows[i];
+            var row = {
+              "name" : rawRow.name,
+              "flagPath" : rawRow.flag_path,
+              "isActive" : rawRow.is_active == 1,
+              "lastOlympicsScore" : rawRow.last_olympics_score
+            };
 
-    }
-    else
-      res.send([]);
-  });
+            if (pool == null || rawRow.pool != pool.index) {
+              if (pool != null)
+                result.pools.push(pool);
+              pool = {"index":rawRow.pool, "countries":[row]};
+            } else {
+              pool.countries.push(row);
+            }
+          }
 
-  connection.end();
+          result.pools.push(pool);
 
+          res.send(result);
+
+        }
+        else
+          res.send([]);
+      });
+
+      connection.release();
+    });
 });
 
 app.listen(3000, function () {
