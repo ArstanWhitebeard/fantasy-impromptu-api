@@ -15,6 +15,14 @@ var connections = mysql.createPool({
 
 
 app.get('/teamstandings/summary', function (req, res, next) {
+    getTeamStandings(res, false);
+});
+
+app.get('/teamstandings/full', function (req, res, next) {
+    getTeamStandings(res, true);
+});
+
+var getTeamStandings = function(res, includeCountries) {
   connections.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
     if (err) {next(err); return;}
 
@@ -47,9 +55,48 @@ app.get('/teamstandings/summary', function (req, res, next) {
       previousRow = row;
     }
 
-    res.send(result);
+    if (!includeCountries)
+      res.send(result);
+    else
+      addCountriesToTeamStandings(result, res);
   });
-});
+}
+
+var addCountriesToTeamStandings = function(teamStandings, res) {
+  connections.query('SELECT cot.team, cs.* FROM countries_on_teams cot, country_standings cs WHERE cot.country=cs.country', function(err, rows, fields) {
+
+    // rows has format:
+    // [{"team" : team1, "country" : country1, ...}, {"team" : team1, "country" : country2, ...}
+    // convert to:
+    // {team1 : [country1, country2...], ...}
+
+    var teamToCountriesMap = {};
+
+    for (var i=0; i<rows.length; ++i) {
+      var row = rows[i];
+      var team = row.team;
+
+      if (teamToCountriesMap[team] == null) {
+        teamToCountriesMap[team] = [];
+      }
+
+      teamToCountriesMap[team].push({
+        "country" : row.country,
+        "golds" : row.golds,
+        "silver" : row.silvers,
+        "bronzes" : row.bronzes
+      });
+    }
+
+    // now augment the teamStandings with each team's array of countries.
+
+    for (var j=0; j<teamStandings.standings.length; ++j) {
+      teamStandings.standings[j].countries = teamToCountriesMap[teamStandings.standings[j].team];
+    }
+
+    res.send(teamStandings);
+  });
+}
 
 app.get('/countries/', function (req, res, next) {
   connections.query('SELECT * from countries ORDER BY pool ASC, last_olympics_score DESC', function(err, rows, fields) {
