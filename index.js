@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var mysql      = require('mysql');
+var mysql = require('mysql');
 
 // TODO pull out config.js
 // TODO set up read-only db user!
@@ -14,11 +14,40 @@ var connections = mysql.createPool({
 });
 
 
-app.get('/teamstandings/', function (req, res, next) {
+app.get('/teamstandings/summary', function (req, res, next) {
   connections.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
     if (err) {next(err); return;}
 
-    res.send(rows);
+    var result = {standings: []}
+    var previousRow = null;
+
+    for (var i=0; i<rows.length; ++i) {
+      var rawRow = rows[i];
+      var position;
+
+      if (previousRow != null &&
+          rawRow.points == previousRow.points &&
+          rawRow.golds == previousRow.golds &&
+          rawRow.silvers == previousRow.silvers)
+        position = previousRawRow.position;
+      else
+        position = i+1;
+
+      var row = {
+        "position" : position,
+        "team" : rawRow.team,
+        "username" : rawRow.username,
+        "golds" : rawRow.golds,
+        "silvers" : rawRow.silvers,
+        "bronzes" : rawRow.bronzes,
+        "points" : rawRow.points
+      };
+
+      result.standings.push(row);
+      previousRow = row;
+    }
+
+    res.send(result);
   });
 });
 
