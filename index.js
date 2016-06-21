@@ -1,10 +1,13 @@
 var express = require('express');
 var app = express();
+var bodyParser = require("body-parser");
 var mysql = require('mysql');
 var config = require('./config');
 
 var connections = mysql.createPool(config.db);
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get('/teamstandings/summary', function (req, res, next) {
     getTeamStandings(res, false);
@@ -123,6 +126,77 @@ app.get('/countries/', function (req, res, next) {
 
     res.send(result);
   });
+});
+
+app.post('/user',function(req,res){
+  var username = req.body.username;
+  var team = req.body.team;
+  var howKnown = req.body.howKnown;
+  var countries = req.body.countries; // [country1, country2...]
+
+  // validate the input
+
+  if (username == null || team == null || countries == null) {
+    res.status(400).send('Incomplete input');
+    return;
+  }
+
+  if (countries.length != config.rules.countriesPerTeam) {
+    res.status(400).send(config.rules.countriesPerTeam + ' countries required');
+    return;
+  }
+
+    connections.query('SELECT * from countries WHERE name in (?)', [countries], function(err, rows, fields) {
+      if (rows.length != countries.length) {
+        res.status(400).send('Unknown country');
+        return;
+      }
+
+      var poolUsage = [];
+      for (var i=0; i<config.rules.countriesPerPool.length; ++i) {
+        poolUsage.push(0);
+      }
+
+      for (var j=0; j<rows.length; ++j) {
+        poolUsage[rows[j].pool - 1]++;
+      }
+
+      for (var k=0; k<poolUsage.length; ++k) {
+        if (poolUsage[k] != config.rules.countriesPerPool[k]) {
+          res.status(400).send('Need ' + config.rules.countriesPerPool[k] + ' countries in pool ' + (k+1) + ", found " + poolUsage[k]);
+          return;
+        }
+      }
+
+      connections.query('INSERT INTO users (name, how_known, team) VALUES (?, ?, ?)', [username, howKnown, team], function(err, rows, fields) {
+        if (err) {
+          res.status(400).send('Cannot create user');
+          console.log(err);
+          return;
+        }
+
+        var insertValues = [];
+        for (var i=0; i<countries.length; ++i)
+          insertValues.push([team, countries[i]]);
+
+        connections.query('INSERT INTO countries_on_teams (team, country) VALUES ?', [insertValues], function(err, rows, fields) {
+          if (err) {
+            res.status(400).send('Cannot add countries');
+            console.log(err);
+            return;
+          }
+
+          connections.query('CALL calculate_team_standings', function(err, rows, fields) {
+            res.send("OK");
+          });
+        });
+      });
+
+
+
+
+console.log(err,rows);
+    });
 });
 
 app.use(function(err, req, res, next) {

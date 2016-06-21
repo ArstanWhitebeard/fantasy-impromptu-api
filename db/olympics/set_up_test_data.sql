@@ -42,16 +42,15 @@ INSERT INTO countries(name, flag_path, is_active, last_olympics_score, pool) VAL
 INSERT INTO countries(name, flag_path, is_active, last_olympics_score, pool) VALUES ('Spain', 'img/Spain.png', TRUE, 2, 1);
 INSERT INTO countries(name, flag_path, is_active, last_olympics_score, pool) VALUES ('Switzerland', 'img/Switzerland.png', TRUE, 24, 3);
 
-INSERT INTO users(name, email, password, team) VALUES ('Ali', 'ali@admin.invalid', PASSWORD('password'), 'e^(i*Pi)');
-INSERT INTO users(name, email, password, team) VALUES ('David', 'david@admin.invalid', PASSWORD('password'), 'Bob!');
+INSERT INTO users(name, how_known, team) VALUES ('Ali', 'self', 'e^(i*Pi)');
+INSERT INTO users(name, how_known, team) VALUES ('ArstanWhitebeard', 'also self', 'Kingsguard');
 
-INSERT INTO users(name, email, password) VALUES ('admin', 'admin@admin.invalid', PASSWORD('password'));
 
 INSERT INTO countries_on_teams(team, country) VALUES ('e^(i*Pi)', 'USA');
 INSERT INTO countries_on_teams(team, country) VALUES ('e^(i*Pi)', 'Spain');
 INSERT INTO countries_on_teams(team, country) VALUES ('e^(i*Pi)', 'Germany');
 
-INSERT INTO countries_on_teams(team, country) VALUES ('Bob!', 'Spain');
+INSERT INTO countries_on_teams(team, country) VALUES ('Kingsguard', 'Spain');
 
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('USA', 5, 4, 1);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Spain', 15, 14, 11);

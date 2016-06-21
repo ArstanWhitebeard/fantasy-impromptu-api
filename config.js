@@ -5,6 +5,11 @@ module.exports = {
       user     : 'api',
       password : 'r4ms4ysD0gs',
       database : 'olympics2016',
-      debug    :  false
+      debug    :  true
+  },
+
+  rules : {
+    countriesPerTeam : 3,
+    countriesPerPool : [1,2]
   }
 };

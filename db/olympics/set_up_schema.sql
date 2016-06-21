@@ -25,13 +25,10 @@ CREATE TABLE countries (
 
 CREATE TABLE users (
     name VARCHAR(32) NOT NULL,
-    email VARCHAR(256) NOT NULL,
-    password CHAR(64) NOT NULL,
-    team VARCHAR(32),
-    groups INTEGER,
-    INDEX (team),
+    how_known VARCHAR(256),
+    team VARCHAR(32) NOT NULL,
 
-    PRIMARY KEY (email)
+    PRIMARY KEY (team)
 ) ENGINE = INNODB;
 
 CREATE TABLE countries_on_teams (
@@ -111,3 +108,6 @@ DELIMITER ;
 -- API user
 CREATE USER IF NOT EXISTS 'api'@'localhost' IDENTIFIED BY 'r4ms4ysD0gs';
 GRANT SELECT ON olympics2016.* TO 'api'@'localhost';
+GRANT INSERT ON olympics2016.users TO 'api'@'localhost';
+GRANT INSERT ON olympics2016.countries_on_teams TO 'api'@'localhost';
+GRANT EXECUTE ON PROCEDURE olympics2016.calculate_team_standings TO 'api'@'localhost';
