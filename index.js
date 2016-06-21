@@ -1,17 +1,9 @@
 var express = require('express');
 var app = express();
 var mysql = require('mysql');
+var config = require('./config');
 
-// TODO pull out config.js
-// TODO set up read-only db user!
-var connections = mysql.createPool({
-    connectionLimit : 10, //important
-    host     : 'localhost',
-    user     : 'root',
-    password : 'root',
-    database : 'olympics2016',
-    debug    :  false
-});
+var connections = mysql.createPool(config.db);
 
 
 app.get('/teamstandings/summary', function (req, res, next) {

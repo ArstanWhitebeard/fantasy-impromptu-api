@@ -107,3 +107,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
+-- API user
+CREATE USER IF NOT EXISTS 'api'@'localhost' IDENTIFIED BY 'r4ms4ysD0gs';
+GRANT SELECT ON olympics2016.* TO 'api'@'localhost';
