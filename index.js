@@ -63,7 +63,9 @@ var getTeamStandings = function(res, includeCountries) {
 }
 
 var addCountriesToTeamStandings = function(teamStandings, res) {
-  connections.query('SELECT cot.team, cs.* FROM countries_on_teams cot, country_standings cs WHERE cot.country=cs.country', function(err, rows, fields) {
+  connections.query('SELECT cot.team, cs.*, c.flag_path, c.is_active ' +
+                    'FROM countries_on_teams cot, country_standings cs, countries c ' +
+                    'WHERE cot.country=cs.country AND cot.country = c.name', function(err, rows, fields) {
 
     // rows has format:
     // [{"team" : team1, "country" : country1, ...}, {"team" : team1, "country" : country2, ...}
@@ -84,7 +86,9 @@ var addCountriesToTeamStandings = function(teamStandings, res) {
         "country" : row.country,
         "golds" : row.golds,
         "silver" : row.silvers,
-        "bronzes" : row.bronzes
+        "bronzes" : row.bronzes,
+        "isActive" : row.is_active == 1,
+        "flagPath" : row.flag_path
       });
     }
 
