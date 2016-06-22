@@ -181,7 +181,10 @@ app.post('/user',function(req, res) {
 
         connection.query('INSERT INTO users (name, how_known, team) VALUES (?, ?, ?)', [username, howKnown, team], function(err, rows, fields) {
           if (err) {
-            res.status(400).send('Cannot create user');
+            if (err.sqlstate = 23000)
+              res.status(400).send('Duplicate entry')
+              else
+              res.status(400).send('Cannot create user');
             console.log(err);
             return connection.rollback(function() {connection.release();});
           }

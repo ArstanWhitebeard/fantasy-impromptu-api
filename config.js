@@ -5,7 +5,7 @@ module.exports = {
       user     : 'api',
       password : 'r4ms4ysD0gs',
       database : 'olympics2016',
-      debug    :  true
+      debug    :  false
   },
 
   rules : {
