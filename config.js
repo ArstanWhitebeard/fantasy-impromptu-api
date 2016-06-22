@@ -11,5 +11,9 @@ module.exports = {
   rules : {
     countriesPerTeam : 3,
     countriesPerPool : [1,2]
+  },
+
+  scrape : {
+    url : "https://en.wikipedia.org/wiki/2012_Summer_Olympics_medal_table"
   }
 };
