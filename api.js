@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require("body-parser");
 var mysql = require('mysql');
-var config = require('./config');
+var config = require('./config').api;
 
 var connections = mysql.createPool(config.db);
 
@@ -20,7 +20,6 @@ app.get('/teamstandings/full', function (req, res, next) {
 var getTeamStandings = function(res, includeCountries) {
   connections.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
     if (err) {next(err); return;}
-    console.log(rows);
 
     var result = {standings: []}
     var previousRow = null;
@@ -218,6 +217,6 @@ app.use(function(err, req, res, next) {
   res.status(500).send('Internal Server Error');
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(config.port, function () {
+  console.log('api.js listening on port 3000');
 });

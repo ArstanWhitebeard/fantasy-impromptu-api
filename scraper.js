@@ -1,11 +1,11 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var mysql = require('mysql');
-var config = require('./config');
+var config = require('./config').scraper;
 
 var connections = mysql.createPool(config.db);
 
-var url = config.scrape.url;
+var url = config.url;
 
 var nameCorrections = {
   "United States" : "USA"
@@ -105,4 +105,4 @@ var storeMedalsTable = function(medalTable) {
 scrapeMedalsTable();
 
 // run periodically
-setInterval(scrapeMedalsTable, config.scrape.interval);
+setInterval(scrapeMedalsTable, config.interval);

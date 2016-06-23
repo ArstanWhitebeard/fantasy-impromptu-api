@@ -110,5 +110,8 @@ GRANT SELECT ON olympics2016.* TO 'api'@'localhost';
 GRANT INSERT ON olympics2016.users TO 'api'@'localhost';
 GRANT INSERT ON olympics2016.countries_on_teams TO 'api'@'localhost';
 GRANT EXECUTE ON PROCEDURE olympics2016.calculate_team_standings TO 'api'@'localhost';
-GRANT DELETE ON olympics2016.country_standings TO 'api'@'localhost';
-GRANT INSERT ON olympics2016.country_standings TO 'api'@'localhost';
+
+CREATE USER IF NOT EXISTS 'scraper'@'localhost' IDENTIFIED BY 'r4ms4ysD0gs';
+GRANT DELETE ON olympics2016.country_standings TO 'scraper'@'localhost';
+GRANT INSERT ON olympics2016.country_standings TO 'scraper'@'localhost';
+GRANT EXECUTE ON PROCEDURE olympics2016.calculate_team_standings TO 'scraper'@'localhost';
