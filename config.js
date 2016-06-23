@@ -14,6 +14,7 @@ module.exports = {
   },
 
   scrape : {
-    url : "https://en.wikipedia.org/wiki/2012_Summer_Olympics_medal_table"
+    url : "https://en.wikipedia.org/wiki/2012_Summer_Olympics_medal_table",
+    interval : 360000
   }
 };
