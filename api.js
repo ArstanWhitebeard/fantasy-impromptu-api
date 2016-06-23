@@ -1,16 +1,15 @@
+var config = require('./config').api;
 var express = require('express');
 var app = express();
 var bodyParser = require("body-parser");
 var mysql = require('mysql');
-var config = require('./config').api;
+var connections = mysql.createPool(config.db);
 var winston = require('winston');
 
 if (config.logfile != null) {
   winston.add(winston.transports.File, { filename: config.logfile });
   winston.remove(winston.transports.Console);
 } // else default to STDOUT
-
-var connections = mysql.createPool(config.db);
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -1,16 +1,14 @@
+var config = require('./config').scraper;
 var request = require('request');
 var cheerio = require('cheerio');
 var mysql = require('mysql');
-var config = require('./config').scraper;
+var connections = mysql.createPool(config.db);
 var winston = require('winston');
 
 if (config.logfile != null) {
   winston.add(winston.transports.File, { filename: config.logfile });
   winston.remove(winston.transports.Console);
 } // else default to STDOUT
-
-
-var connections = mysql.createPool(config.db);
 
 var scrapeMedalsTable = function() {
   winston.info(new Date(), "Beginning scrape from " + config.url);
