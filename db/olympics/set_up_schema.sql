@@ -47,8 +47,7 @@ CREATE TABLE country_standings (
     silvers INTEGER NOT NULL,
     bronzes INTEGER NOT NULL,
 
-    PRIMARY KEY(country),
-    FOREIGN KEY(country) REFERENCES countries(name)
+    PRIMARY KEY(country)
 ) ENGINE = INNODB;
 
 -- Partly denormalised
@@ -111,3 +110,5 @@ GRANT SELECT ON olympics2016.* TO 'api'@'localhost';
 GRANT INSERT ON olympics2016.users TO 'api'@'localhost';
 GRANT INSERT ON olympics2016.countries_on_teams TO 'api'@'localhost';
 GRANT EXECUTE ON PROCEDURE olympics2016.calculate_team_standings TO 'api'@'localhost';
+GRANT DELETE ON olympics2016.country_standings TO 'api'@'localhost';
+GRANT INSERT ON olympics2016.country_standings TO 'api'@'localhost';
