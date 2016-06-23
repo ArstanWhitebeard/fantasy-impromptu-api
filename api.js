@@ -3,6 +3,12 @@ var app = express();
 var bodyParser = require("body-parser");
 var mysql = require('mysql');
 var config = require('./config').api;
+var winston = require('winston');
+
+if (config.logfile != null) {
+  winston.add(winston.transports.File, { filename: config.logfile });
+  winston.remove(winston.transports.Console);
+} // else default to STDOUT
 
 var connections = mysql.createPool(config.db);
 
@@ -10,10 +16,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/teamstandings/summary', function (req, res, next) {
+    winston.info('/teamstandings/summary');
+
     getTeamStandings(res, false);
 });
 
 app.get('/teamstandings/full', function (req, res, next) {
+    winston.info('/teamstandings/full');
     getTeamStandings(res, true);
 });
 
@@ -129,6 +138,8 @@ app.get('/countries/', function (req, res, next) {
 });
 
 app.post('/user',function(req, res) {
+  winston.info('/user', req.body);
+
   var username = req.body.username;
   var team = req.body.team;
   var howKnown = req.body.howKnown;
@@ -151,7 +162,7 @@ app.post('/user',function(req, res) {
     connection.beginTransaction(function(err) {
       if (err) {
         res.status(500).send('Internal server error');
-        console.log(err);
+        winston.error(err);
         connection.release();
         return;
       }
@@ -184,7 +195,7 @@ app.post('/user',function(req, res) {
               res.status(400).send('Duplicate entry')
               else
               res.status(400).send('Cannot create user');
-            console.log(err);
+            winston.error(err);
             return connection.rollback(function() {connection.release();});
           }
 
@@ -195,7 +206,7 @@ app.post('/user',function(req, res) {
           connection.query('INSERT INTO countries_on_teams (team, country) VALUES ?', [insertValues], function(err, rows, fields) {
             if (err) {
               res.status(400).send('Cannot add countries');
-              console.log(err);
+              winston.error(err);
               return connection.rollback(function() {connection.release();});
             }
 
@@ -213,10 +224,19 @@ app.post('/user',function(req, res) {
 });
 
 app.use(function(err, req, res, next) {
-  console.error(err.stack);
+  winston.error(err.stack);
   res.status(500).send('Internal Server Error');
 });
 
 app.listen(config.port, function () {
-  console.log('api.js listening on port 3000');
+  winston.info('api.js listening on port ' + config.port);
 });
+
+var handleExit = function() {
+  winston.info('api.js shutting down');
+  process.exit();
+};
+
+process.on('SIGINT', handleExit);
+process.on('SIGTERM', handleExit);
+process.on('exit', handleExit);

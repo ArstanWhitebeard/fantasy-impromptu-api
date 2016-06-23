@@ -2,25 +2,31 @@ var request = require('request');
 var cheerio = require('cheerio');
 var mysql = require('mysql');
 var config = require('./config').scraper;
+var winston = require('winston');
+
+if (config.logfile != null) {
+  winston.add(winston.transports.File, { filename: config.logfile });
+  winston.remove(winston.transports.Console);
+} // else default to STDOUT
+
 
 var connections = mysql.createPool(config.db);
 
-var url = config.url;
-
-var nameCorrections = {
-  "United States" : "USA"
-};
-
 var scrapeMedalsTable = function() {
-  console.log(new Date(), "Beginning scrape from " + url);
+  winston.info(new Date(), "Beginning scrape from " + config.url);
 
-  request(url, function(error, response, html) {
+  request(config.url, function(error, response, html) {
     if (error) {
-      console.log(error);
+      winston.error(error);
       return;
     }
 
     var $ = cheerio.load(html);
+
+    if ($('.wikitable').length == 0) {
+      winston.error("Unable to find .wikitable in scraped html");
+      return;
+    }
 
     $('.wikitable').each(function(i, element) {
       if($(this).children('caption').html().indexOf("medal table") != -1) {
@@ -46,7 +52,12 @@ var scrapeMedalsTable = function() {
         });
 
         // each() is synchronous so we can trust its callbacks have finished executing
-        storeMedalsTable(medalsTable);
+        if (medalsTable.standings.length == 0) {
+          winston.error("No data found in scraped html");
+          return;
+        } else {
+          return storeMedalsTable(medalsTable);
+        }
       }
     });
   });
@@ -58,8 +69,8 @@ var storeMedalsTable = function(medalTable) {
   for (var i=0; i<medalTable.standings.length; ++i) {
     var row = medalTable.standings[i];
 
-    if (nameCorrections[row.country] != null)
-      row.country = nameCorrections[row.country];
+    if (config.nameCorrections[row.country] != null)
+      row.country = config.nameCorrections[row.country];
 
     values.push([row.country, row.golds, row.silvers, row.bronzes]);
   }
@@ -67,31 +78,31 @@ var storeMedalsTable = function(medalTable) {
   connections.getConnection(function(err, connection) {
     connection.beginTransaction(function(err) {
       if (err) {
-        console.log(err);
+        winston.error(err);
         connection.release();
         return;
       }
 
       connection.query('DELETE FROM country_standings', function(err, rows) {
         if (err) {
-          console.log(err);
+          winston.error(err);
           return connection.rollback(function() {connection.release();});
         }
 
         connection.query('INSERT INTO country_standings (country, golds, silvers, bronzes) VALUES ?', [values], function(err, rows) {
           if (err) {
-            console.log(err);
+            winston.error(err);
             return connection.rollback(function() {connection.release();});
           }
 
           connection.query('CALL calculate_team_standings', function(err, rows, fields) {
             if (err) {
-              console.log(err);
+              winston.error(err);
               return connection.rollback(function() {connection.release();});
             }
 
             return connection.commit(function() {
-              console.log(new Date(), "Completed scrape");
+              winston.info(new Date(), "Completed scrape");
               connection.release();
             });
           });
@@ -106,3 +117,13 @@ scrapeMedalsTable();
 
 // run periodically
 setInterval(scrapeMedalsTable, config.interval);
+
+
+var handleExit = function() {
+  winston.info('scraper.js shutting down');
+  process.exit();
+};
+
+process.on('SIGINT', handleExit);
+process.on('SIGTERM', handleExit);
+process.on('exit', handleExit);

@@ -5,8 +5,10 @@
   "main": "api.js",
   "private": true,
   "scripts": {
+    "start" : "node api.js & node scraper.js &",
+    "stop" : "pkill -f api.js; pkill -f scraper.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall" : "cp -n config.js.sample config.js"
+    "postinstall" : "cp -n config.js.sample config.js; mkdir -p logs"
   },
   "repository": {
     "type": "git",
