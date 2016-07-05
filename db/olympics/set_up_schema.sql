@@ -17,7 +17,7 @@ CREATE TABLE countries (
     name VARCHAR(32) NOT NULL,
     flag_path VARCHAR(256) NOT NULL,
     is_active BOOLEAN NOT NULL,
-    last_olympics_score INTEGER NOT NULL,
+    handicap INTEGER NOT NULL,
     pool INTEGER NOT NULL,
 
     PRIMARY KEY(name)
@@ -58,6 +58,7 @@ CREATE TABLE team_standings (
     golds INTEGER NOT NULL,
     silvers INTEGER NOT NULL,
     bronzes INTEGER NOT NULL,
+    handicaps INTEGER NOT NULL,
     points INTEGER NOT NULL,
 
     PRIMARY KEY(team),
@@ -75,6 +76,7 @@ BEGIN
     DECLARE total_silvers INTEGER;
     DECLARE total_bronzes INTEGER;
     DECLARE total_points INTEGER;
+    DECLARE total_handicaps INTEGER;
     DECLARE team_cursor CURSOR FOR SELECT team, name FROM users WHERE team IS NOT NULL;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
@@ -86,17 +88,18 @@ BEGIN
 
         IF NOT done THEN
 
-            SELECT SUM(golds), SUM(silvers), SUM(bronzes)
-            INTO total_golds, total_silvers, total_bronzes
-            FROM country_standings
-            WHERE country IN (
+            SELECT SUM(cs.golds), SUM(cs.silvers), SUM(cs.bronzes), SUM(c.handicap)
+            INTO total_golds, total_silvers, total_bronzes, total_handicaps
+            FROM country_standings cs, countries c
+            WHERE cs.country = c.name
+            AND cs.country IN (
                 SELECT country FROM countries_on_teams WHERE team = this_team
             );
 
-            SET total_points = 4*IFNULL(total_golds, 0) + 2*IFNULL(total_silvers, 0) + IFNULL(total_bronzes, 0);
+            SET total_points = 4*IFNULL(total_golds, 0) + 2*IFNULL(total_silvers, 0) + IFNULL(total_bronzes, 0) + IFNULL(total_handicaps, 0);
 
-            INSERT INTO team_standings (team, username, golds, silvers, bronzes, points)
-            VALUES (this_team, this_username, IFNULL(total_golds, 0), IFNULL(total_silvers, 0), IFNULL(total_bronzes, 0), IFNULL(total_points, 0));
+            INSERT INTO team_standings (team, username, golds, silvers, bronzes, handicaps, points)
+            VALUES (this_team, this_username, IFNULL(total_golds, 0), IFNULL(total_silvers, 0), IFNULL(total_bronzes, 0), IFNULL(total_handicaps, 0), IFNULL(total_points, 0));
         END IF;
     UNTIL done END REPEAT;
 

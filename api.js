@@ -32,7 +32,7 @@ app.get('/teamstandings/full', function (req, res, next) {
 });
 
 var getTeamStandings = function(res, includeCountries) {
-  connections.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC', function(err, rows, fields) {
+  connections.query('SELECT * from team_standings ORDER BY points DESC, golds DESC, silvers DESC, bronzes DESC', function(err, rows, fields) {
     if (err) {next(err); return;}
 
     var result = {standings: []}
@@ -57,6 +57,7 @@ var getTeamStandings = function(res, includeCountries) {
         "golds" : rawRow.golds,
         "silvers" : rawRow.silvers,
         "bronzes" : rawRow.bronzes,
+        "handicap" : rawRow.handicaps,
         "points" : rawRow.points
       };
 
@@ -72,7 +73,7 @@ var getTeamStandings = function(res, includeCountries) {
 }
 
 var addCountriesToTeamStandings = function(teamStandings, res) {
-  connections.query('SELECT cot.team, cs.*, c.flag_path, c.is_active ' +
+  connections.query('SELECT cot.team, cs.*, c.flag_path, c.is_active, c.handicap ' +
                     'FROM countries_on_teams cot, country_standings cs, countries c ' +
                     'WHERE cot.country=cs.country AND cot.country = c.name', function(err, rows, fields) {
 
@@ -97,6 +98,7 @@ var addCountriesToTeamStandings = function(teamStandings, res) {
         "silver" : row.silvers,
         "bronzes" : row.bronzes,
         "isActive" : row.is_active == 1,
+        "handicap" : row.handicap,
         "flagPath" : row.flag_path
       });
     }
@@ -112,7 +114,7 @@ var addCountriesToTeamStandings = function(teamStandings, res) {
 }
 
 app.get('/countries/', function (req, res, next) {
-  connections.query('SELECT * from countries ORDER BY pool ASC, last_olympics_score DESC', function(err, rows, fields) {
+  connections.query('SELECT * from countries ORDER BY pool ASC, handicap ASC', function(err, rows, fields) {
     if (err) {next(err); return;}
 
     var result = {"pools" : []};
@@ -124,7 +126,7 @@ app.get('/countries/', function (req, res, next) {
         "name" : rawRow.name,
         "flagPath" : rawRow.flag_path,
         "isActive" : rawRow.is_active == 1,
-        "lastOlympicsScore" : rawRow.last_olympics_score
+        "handicap" : rawRow.handicap
       };
 
       if (pool == null || rawRow.pool != pool.index) {
