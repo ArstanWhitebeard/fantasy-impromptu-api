@@ -75,7 +75,8 @@ var getTeamStandings = function(res, includeCountries) {
 var addCountriesToTeamStandings = function(teamStandings, res) {
   connections.query('SELECT cot.team, cs.*, c.flag_path, c.is_active, c.handicap ' +
                     'FROM countries_on_teams cot, country_standings cs, countries c ' +
-                    'WHERE cot.country=cs.country AND cot.country = c.name', function(err, rows, fields) {
+                    'WHERE cot.country=cs.country AND cot.country = c.name ' +
+                    'ORDER BY c.pool ASC, c.handicap ASC', function(err, rows, fields) {
 
     // rows has format:
     // [{"team" : team1, "country" : country1, ...}, {"team" : team1, "country" : country2, ...}
