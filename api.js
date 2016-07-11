@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
@@ -156,12 +157,12 @@ app.post('/user',function(req, res) {
   // validate the input
 
   if (username == null || team == null || countries == null) {
-    res.status(400).send('Incomplete input');
+    res.status(400).send({"message":'Incomplete input'});
     return;
   }
 
   if (countries.length != config.rules.countriesPerTeam) {
-    res.status(400).send(config.rules.countriesPerTeam + ' countries required');
+    res.status(400).send({"message":config.rules.countriesPerTeam + ' countries required'});
     return;
   }
 
@@ -169,7 +170,7 @@ app.post('/user',function(req, res) {
   connections.getConnection(function(err, connection) {
     connection.beginTransaction(function(err) {
       if (err) {
-        res.status(500).send('Internal server error');
+        res.status(500).send({"message":'Internal server error'});
         winston.error(err);
         connection.release();
         return;
@@ -177,7 +178,7 @@ app.post('/user',function(req, res) {
 
       connection.query('SELECT * from countries WHERE name in (?)', [countries], function(err, rows, fields) {
         if (rows.length != countries.length) {
-          res.status(400).send('Unknown country');
+          res.status(400).send({"message":'Unknown country'});
           return connection.rollback(function() {connection.release();});
         }
 
@@ -192,7 +193,7 @@ app.post('/user',function(req, res) {
 
         for (var k=0; k<poolUsage.length; ++k) {
           if (poolUsage[k] != config.rules.countriesPerPool[k]) {
-            res.status(400).send('Need ' + config.rules.countriesPerPool[k] + ' countries in pool ' + (k+1) + ", found " + poolUsage[k]);
+            res.status(400).send({"message":'Need ' + config.rules.countriesPerPool[k] + ' countries in pool ' + (k+1) + ", found " + poolUsage[k]});
             return connection.rollback(function() {connection.release();});
           }
         }
@@ -200,9 +201,9 @@ app.post('/user',function(req, res) {
         connection.query('INSERT INTO users (name, how_known, team) VALUES (?, ?, ?)', [username, howKnown, team], function(err, rows, fields) {
           if (err) {
             if (err.sqlstate = 23000)
-              res.status(400).send('Duplicate entry')
+              res.status(400).send({"message":'Duplicate entry'});
               else
-              res.status(400).send('Cannot create user');
+              res.status(400).send({"message":'Cannot create user'});
             winston.error(err);
             return connection.rollback(function() {connection.release();});
           }
@@ -213,7 +214,7 @@ app.post('/user',function(req, res) {
 
           connection.query('INSERT INTO countries_on_teams (team, country) VALUES ?', [insertValues], function(err, rows, fields) {
             if (err) {
-              res.status(400).send('Cannot add countries');
+              res.status(400).send({"message":'Cannot add countries'});
               winston.error(err);
               return connection.rollback(function() {connection.release();});
             }
@@ -221,7 +222,7 @@ app.post('/user',function(req, res) {
             connection.query('CALL calculate_team_standings', function(err, rows, fields) {
               return connection.commit(function() {
                 connection.release();
-                res.send("OK");
+                res.send({});
               });
             });
           });
