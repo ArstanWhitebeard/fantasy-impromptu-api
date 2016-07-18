@@ -38,5 +38,15 @@ module.exports = {
   image : {
     port : 3001,
     logfile : "logs/image-api.log",
+    targetPath : '../ghost/content/images/uploads',
+    ghost : {
+      url : "http://localhost:2368/ghost/api/v0.1",
+      imagePath : "/content/images/uploads",
+      clientId : "api",
+      clientSecret : "aaaaaaaaaaaa",
+      username : "api@fantasyimpromptu.uk",
+      password : "paintinginred",
+      author : 1
+    }
   }
 };

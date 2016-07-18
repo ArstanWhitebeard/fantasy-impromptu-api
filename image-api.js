@@ -8,6 +8,7 @@ var app = express();
 var bodyParser = require("body-parser");
 var winston = require('winston');
 var base64Img = require('base64-img');
+var request = require('request');
 
 if (config.logfile != null) {
   winston.add(winston.transports.File, { filename: config.logfile });
@@ -28,9 +29,91 @@ app.use(function(req, res, next) {
 app.post('/upload',function(req, res) {
   winston.info('/upload', req.body);
 
-  var filepath = base64Img.imgSync(req.body.data, 'data', '2');
+  var filename = Date.now() + (Math.random().toString(36).substring(7));
 
-  res.status(200).send({});
+  // first, save the image to the filesystem so we can recover if all else fails
+  var filepath = base64Img.imgSync(req.body.data, config.targetPath, filename);
+
+  winston.info('Saved to ' + filepath);
+
+  // next, open a session in the ghost api
+  var ghost = config.ghost;
+  request({
+    url : ghost.url + '/authentication/token',
+    method : "POST",
+    form : {
+      grant_type: "password",
+      username: ghost.username,
+      password: ghost.password,
+      client_id: ghost.clientId,
+      client_secret: ghost.clientSecret
+    }
+  }, function(error, response, body) {
+    if (error) {
+      winston.error(error);
+      return;
+    }
+
+    var token = JSON.parse(body).access_token;
+    winston.info('Acquired token ', token.substr(0, 6) + '...');
+
+    // now create a slug for our post
+    request({
+      url : ghost.url + '/slugs/post/' + filename,
+      method : "GET",
+      headers : {
+        "Authorization" : "Bearer " + token
+      }
+    }, function(error, response, body) {
+      if (error) {
+        winston.error(error);
+        return;
+      }
+
+      winston.info('Created slug ' + filename);
+
+      // now create the post, and link it to the file we already Saved
+      request({
+        url : ghost.url + '/posts/?include=tags',
+        method : "POST",
+        json: true,
+        headers : {
+          "Authorization" : "Bearer " + token
+        },
+        body : {
+          "posts":[
+            {"title":"myfakepost",
+            "slug":filename,
+            "markdown":"Hello, world",
+            "image":ghost.imagePath + "/" + filename + '.png',
+            "featured":false,
+            "page":false,
+            "status":"published",
+            "language":"en_US",
+            "meta_title":null,
+            "meta_description":null,
+            "author":ghost.author,
+            "publishedBy":null,
+            "tags":[]
+          }
+        ]}
+      }, function(error, response, body) {
+        console.log(error, body);
+        if (error) {
+          winston.error(error);
+          return;
+        }
+
+        res.status(200).send({
+          path:filepath,
+          token: token
+        });
+
+      });
+
+
+    });
+  });
 });
 
 app.use(function(err, req, res, next) {
@@ -42,11 +125,11 @@ app.listen(config.port, function () {
   winston.info('image-api.js listening on port ' + config.port);
 });
 
-var handleExit = function() {
-  winston.info('image-api.js shutting down');
-  process.exit();
-};
-
-process.on('SIGINT', handleExit);
-process.on('SIGTERM', handleExit);
-process.on('exit', handleExit);
+// var handleExit = function() {
+//   winston.info('image-api.js shutting down');
+//   process.exit();
+// };
+//
+// process.on('SIGINT', handleExit);
+// process.on('SIGTERM', handleExit);
+// process.on('exit', handleExit);
