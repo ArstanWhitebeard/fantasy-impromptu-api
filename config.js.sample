@@ -33,5 +33,10 @@ module.exports = {
     nameCorrections : {
       "United States" : "USA"
     }
+  },
+
+  image : {
+    port : 3001,
+    logfile : "logs/image-api.log",
   }
 };

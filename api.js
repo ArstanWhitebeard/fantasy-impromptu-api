@@ -128,7 +128,8 @@ app.get('/countries/', function (req, res, next) {
         "name" : rawRow.name,
         "flagPath" : rawRow.flag_path,
         "isActive" : rawRow.is_active == 1,
-        "handicap" : rawRow.handicap
+        "handicap" : rawRow.handicap,
+        "previous" : rawRow.previous
       };
 
       if (pool == null || rawRow.pool != pool.index) {

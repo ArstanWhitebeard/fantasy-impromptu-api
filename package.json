@@ -5,10 +5,10 @@
   "main": "api.js",
   "private": true,
   "scripts": {
-    "start" : "node api.js & node scraper.js &",
-    "stop" : "pkill -f api.js; pkill -f scraper.js",
+    "start": "node api.js & node scraper.js &",
+    "stop": "pkill -f api.js; pkill -f scraper.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall" : "cp -n config.js.sample config.js; mkdir -p logs"
+    "postinstall": "cp -n config.js.sample config.js; mkdir -p logs"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/ArstanWhitebeard/fantasy-impromptu-api#readme",
   "dependencies": {
+    "base64-img": "^1.0.3",
     "body-parser": "^1.15.2",
     "cheerio": "^0.20.0",
     "express": "^4.14.0",

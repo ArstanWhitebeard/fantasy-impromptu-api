@@ -1,0 +1,157 @@
+NEED: root access to server, pregenerated password hash (e.g. throwaway password from existing user)
+GET: new user for ghost without needing to send out email
+
+sqlite3 is a cmd-line client, preinstalled on my mac
+$ cd content/data
+$ sqlite3 ghost-dev.db
+.tables  <should show a load of stuff>
+INSERT INTO users (id,
+                     uuid,
+                     name,
+                     slug,
+                     password,
+                     email,
+                     image,
+                     cover,
+                     bio,
+                     website,
+                     location,
+                     accessibility,
+                     status,
+                     language,
+                     meta_title,
+                     meta_description,
+                     last_login,
+                     created_at,
+                     created_by,
+                     updated_at,
+                     updated_by)
+              VALUES ('2',
+                      MAKEUPAUID,
+                      'api',
+                      'api',
+                      YOURHASHHERE,
+                      'api@fantasyimpromptu.uk',
+                      NULL,
+                      NULL,
+                      NULL,
+                      '',
+                      '',
+                      NULL,
+                      'active',
+                      'en_US',
+                      NULL,
+                      NULL,
+                      '2014-10-18 17:12:40',
+                      '2014-10-18 12:55:44',
+                      '1',
+                      '2014-10-18 17:12:40',
+                      '1');
+
+
+NEED:
+GET: a client id with secret
+
+REQUEST (Sqlite3 as above)
+INSERT INTO clients (id, uuid, name, slug, secret, redirection_uri, logo, status, type, description, created_at, created_by, updated_at, updated_by) VALUES (4, 'foofoofoo', 'API hack access', 'api', 'aaaaaaaaaaaa',null, null, 'enabled','ua',null, 1464444576564, 1, 1464444576564, 1);
+
+
+NEED: username, password, client secret you just made
+GET: token
+
+REQUEST: POST http://localhost:2368/ghost/api/v0.1/authentication/token
+grant_type=password&username=YOURUSERNAME&password=YOURPASSWORD&client_id=api&client_secret=aaaaaaaaaaaa
+
+RESPONSE: {"access_token":"upMyLQCLhnwrjL4voC0RvSqnJIJyvAYClNQoyILGCTfIOwPn6ypJiPv5fORUUFthY6Pg3DykCqrCvO5MD2xIc5St235tLfD7l7WbzycInVzvtI0TtxBKhve9ll5LFMtFNxzduJBtZAuqCKcqdkB7jAhw7imBmU6WzZ63oUNOWEJavQH7D7BfJxSy9Ycnfv2Rk1ZT4W0An7wESwC9lkFXtG69HCs3vZwIPpNsJ8yBzgAyzRUECgOEyNlm2PzH8Bx","refresh_token":"GMmlzQ3WhxFwNjtrR32asgEq7GQYxaLK5SpPwkISn4eMouBebB0HRaNBVFZhvk3dVICy13oT5sohqfXuTta731smvYIqxryYXnfbIxry7ZIXQ2dRItXTjCIC5zz6Vg5z2dHOpWcMEBaUUcq2HpdkkWp69zWuUCMSLxwA4szK1ExH72dVmRdOR4sKCbHVYAGPC1M5T2UeOpn8b0f2QEP3broiisVmtQYot9lTA1GtEQcytJjtgM4cWKbKbPiVCgh","expires_in":3600,"token_type":"Bearer"}
+
+
+NEED: unique(?) slug (i.e. post name)
+GET: confirmation slug has been created?
+
+REQUEST: GET http://localhost:2368/ghost/api/v0.1/slugs/post/myfakepost/
+
+RESPONSE: {
+  "slugs": [
+    {
+      "slug": "myfakepost"
+    }
+  ]
+}
+
+
+
+
+NEED: slug
+GET: post ID (useful) and UUID (not useful?)
+
+REQUEST: POST http://localhost:2368/ghost/api/v0.1/posts/?include=tags
+{"posts":[{"title":"myfakepost","slug":"myfakepost","markdown":"","image":null,"featured":false,"page":false,"status":"draft","language":"en_US","meta_title":null,"meta_description":null,"author":"1","publishedBy":null,"tags":[]}]}
+
+RESPONSE: {
+  "posts": [
+    {
+      "id": 17,
+      "uuid": "85754034-db3a-40fd-b7c2-977c2f3398c6",
+      "title": "myfakepost",
+      "slug": "myfakepost",
+      "markdown": "",
+      "mobiledoc": null,
+      "html": "",
+      "image": null,
+      "featured": false,
+      "page": false,
+      "status": "draft",
+      "language": "en_US",
+      "visibility": "public",
+      "meta_title": null,
+      "meta_description": null,
+      "created_at": "2016-07-17T20:11:35.733Z",
+      "created_by": 1,
+      "updated_at": "2016-07-17T20:11:35.733Z",
+      "updated_by": 1,
+      "published_at": null,
+      "published_by": null,
+      "tags": [],
+      "author": 1,
+      "url": "/myfakepost/"
+    }
+  ]
+}
+
+
+NEED: Completed post
+GET:
+
+REQUEST: PUT http://localhost:2368/ghost/api/v0.1/posts/YOURNEWIDHERE/?include=tags {"posts":[{"id":"17","title":"myfakepost","slug":"myfakepost","markdown":"asdfasdfads","image":null,"featured":false,"page":false,"status":"published","language":"en_US","meta_title":null,"meta_description":null,"updated_at":"2016-07-17T20:03:22.587Z","updated_by":1,"published_at":null,"created_at":"2016-07-17T20:02:43.880Z","created_by":1,"author":"1","publishedBy":null,"tags":[]}]}
+
+RESPONSE:
+{
+  "posts": [
+    {
+      "id": 17,
+      "uuid": "85754034-db3a-40fd-b7c2-977c2f3398c6",
+      "title": "myfakepost",
+      "slug": "myfakepost",
+      "markdown": "hello word",
+      "mobiledoc": null,
+      "html": "<p>hello wrodl</p>",
+      "image": null,
+      "featured": false,
+      "page": false,
+      "status": "published",
+      "language": "en_US",
+      "visibility": "public",
+      "meta_title": null,
+      "meta_description": null,
+      "created_at": "2016-07-17T20:02:43.880Z",
+      "created_by": 1,
+      "updated_at": "2016-07-17T20:14:28.603Z",
+      "updated_by": 1,
+      "published_at": "2016-07-17T20:14:28.605Z",
+      "published_by": 1,
+      "tags": [],
+      "author": 1,
+      "url": "/myfakepost/"
+    }
+  ]
+}
