@@ -18,6 +18,7 @@ CREATE TABLE countries (
     flag_path VARCHAR(256) NOT NULL,
     is_active BOOLEAN NOT NULL,
     handicap INTEGER NOT NULL,
+    previous INTEGER NOT NULL,
     pool INTEGER NOT NULL,
 
     PRIMARY KEY(name)
