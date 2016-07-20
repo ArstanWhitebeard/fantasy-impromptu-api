@@ -29,12 +29,29 @@ app.use(function(req, res, next) {
 app.post('/upload',function(req, res) {
   winston.info('/upload', req.body);
 
-  var filename = Date.now() + (Math.random().toString(36).substring(7));
+  var title = req.body.title;
+  var author = req.body.author;
+  var age = req.body.age;
+
+  if (title == null || author == null || age == null) {
+    res.status(400).send({"message":'Incomplete input'});
+    return;
+  }
+
+  var markdown = '*"' + title + '"* by ' + author + ', aged ' + age;
 
   // first, save the image to the filesystem so we can recover if all else fails
-  var filepath = base64Img.imgSync(req.body.data, config.targetPath, filename);
+  var filename = Date.now() + (Math.random().toString(36).substring(7));
+  var imageFile;
+  try {
+    imageFile = base64Img.imgSync(req.body.data, config.targetPath, filename);
+  } catch (error) {
+    winston.error(error);
+    res.status(500).send({"message":'Internal server error'});
+    return;
+  }
 
-  winston.info('Saved to ' + filepath);
+  winston.info('Saved to ' + imageFile);
 
   // next, open a session in the ghost api
   var ghost = config.ghost;
@@ -43,7 +60,7 @@ app.post('/upload',function(req, res) {
     method : "POST",
     form : {
       grant_type: "password",
-      username: ghost.username,
+      username: ghost.username + "foo",
       password: ghost.password,
       client_id: ghost.clientId,
       client_secret: ghost.clientSecret
@@ -51,10 +68,18 @@ app.post('/upload',function(req, res) {
   }, function(error, response, body) {
     if (error) {
       winston.error(error);
+      res.status(500).send({"message":'Internal server error'});
       return;
     }
 
     var token = JSON.parse(body).access_token;
+
+    if (token === null) {
+      winston.error("no token");
+      res.status(500).send({"message":'Internal server error'});
+      return;
+    }
+
     winston.info('Acquired token ', token.substr(0, 6) + '...');
 
     // now create a slug for our post
@@ -67,12 +92,13 @@ app.post('/upload',function(req, res) {
     }, function(error, response, body) {
       if (error) {
         winston.error(error);
+        res.status(500).send({"message":'Internal server error'});
         return;
       }
 
       winston.info('Created slug ' + filename);
 
-      // now create the post, and link it to the file we already Saved
+      // now create the post, and link it to the file we already saved
       request({
         url : ghost.url + '/posts/?include=tags',
         method : "POST",
@@ -82,9 +108,9 @@ app.post('/upload',function(req, res) {
         },
         body : {
           "posts":[
-            {"title":"myfakepost",
+            {"title":title,
             "slug":filename,
-            "markdown":"Hello, world",
+            "markdown":markdown,
             "image":ghost.imagePath + "/" + filename + '.png',
             "featured":false,
             "page":false,
@@ -98,20 +124,14 @@ app.post('/upload',function(req, res) {
           }
         ]}
       }, function(error, response, body) {
-        console.log(error, body);
         if (error) {
           winston.error(error);
+          res.status(500).send({"message":'Internal server error'});
           return;
         }
 
-        res.status(200).send({
-          path:filepath,
-          token: token
-        });
-
+        res.status(200).send({});
       });
-
-
     });
   });
 });
