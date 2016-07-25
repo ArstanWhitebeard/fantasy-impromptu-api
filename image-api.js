@@ -145,11 +145,11 @@ app.listen(config.port, function () {
   winston.info('image-api.js listening on port ' + config.port);
 });
 
-// var handleExit = function() {
-//   winston.info('image-api.js shutting down');
-//   process.exit();
-// };
-//
-// process.on('SIGINT', handleExit);
-// process.on('SIGTERM', handleExit);
-// process.on('exit', handleExit);
+var handleExit = function() {
+  winston.info('image-api.js shutting down');
+  process.exit();
+};
+
+process.on('SIGINT', handleExit);
+process.on('SIGTERM', handleExit);
+process.on('exit', handleExit);

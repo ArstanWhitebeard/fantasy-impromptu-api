@@ -1,7 +1,7 @@
 module.exports = {
   api : {
     port : 3000,
-    logfile : "logs/api.log",
+    logfile : "/var/log/fantasy-impromptu-api/api.log",
     db : {
         connectionLimit : 10,
         host     : 'localhost',
@@ -18,7 +18,7 @@ module.exports = {
   },
 
   scraper : {
-    logfile : "logs/scraper.log",
+    logfile : "/var/log/fantasy-impromptu-api/scraper.log",
     db : {
         connectionLimit : 10,
         host     : 'localhost',
@@ -37,8 +37,8 @@ module.exports = {
 
   image : {
     port : 3001,
-    logfile : "logs/image-api.log",
-    targetPath : '../ghost/content/images/uploads',
+    logfile : "/var/log/fantasy-impromptu-api/image-api.log",
+    targetPath : '/var/www/ghost/content/images/uploads',
     ghost : {
       url : "http://localhost:2368/ghost/api/v0.1",
       imagePath : "/content/images/uploads",
