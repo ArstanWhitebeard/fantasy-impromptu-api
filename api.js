@@ -74,9 +74,11 @@ var getTeamStandings = function(res, includeCountries) {
 }
 
 var addCountriesToTeamStandings = function(teamStandings, res) {
-  connections.query('SELECT cot.team, cs.*, c.flag_path, c.is_active, c.handicap ' +
-                    'FROM countries_on_teams cot, country_standings cs, countries c ' +
-                    'WHERE cot.country=cs.country AND cot.country = c.name ' +
+  connections.query('SELECT cot.team, cot.country, cs.golds, cs.silvers, cs.bronzes, ' +
+                    'c.flag_path, c.is_active, c.handicap ' +
+                    'FROM countries_on_teams cot ' +
+                    'LEFT OUTER JOIN country_standings cs ON cot.country=cs.country ' +
+                    'LEFT OUTER JOIN countries c ON cot.country = c.name ' +
                     'ORDER BY c.pool ASC, c.handicap ASC', function(err, rows, fields) {
 
     // rows has format:

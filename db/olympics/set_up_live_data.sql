@@ -1,14 +1,14 @@
 -- Live data
 USE olympics2016;
 
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Great Britain', 'img/Great_Britain.png', TRUE, 0, 169, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Germany', 'img/Germany.png', TRUE, 37, 96, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Australia', 'img/Australia.png', TRUE, 44, 74, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('France', 'img/France.png', TRUE, 57, 78, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Japan', 'img/Japan.png', TRUE, 63, 73, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Italy', 'img/Italy.png', TRUE, 72, 61, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Cuba', 'img/Cuba.png', TRUE, 94, 33, 1);
-INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Hungary', 'img/Hungary.png', TRUE, 96, 46, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Russia', 'img/Russia.png', TRUE, 0, 170, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Great Britain', 'img/Great_Britain.png', TRUE, 37, 169, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Germany', 'img/Germany.png', TRUE, 74, 96, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Australia', 'img/Australia.png', TRUE, 81, 74, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('France', 'img/France.png', TRUE, 94, 78, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('South Korea', 'img/South_Korea.png', TRUE, 96, 75, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Japan', 'img/Japan.png', TRUE, 100, 73, 1);
+INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Italy', 'img/Italy.png', TRUE, 109, 61, 1);
 
 INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Canada', 'img/Canada.png', TRUE, 0, 26, 2);
 INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Brazil', 'img/Brazil.png', TRUE, 1, 31, 2);
