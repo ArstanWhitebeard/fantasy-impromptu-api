@@ -37,14 +37,14 @@ INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALU
 INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Bahamas', 'img/Bahamas.png', TRUE, 3, 4, 4);
 INSERT INTO countries(name, flag_path, is_active, handicap, previous, pool) VALUES ('Zimbabwe', 'img/Zimbabwe.png', TRUE, 3, 0, 4);
 
+INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Russia', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Great Britain', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Germany', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Australia', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('France', 0, 0, 0);
+INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('South Korea', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Japan', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Italy', 0, 0, 0);
-INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Cuba', 0, 0, 0);
-INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Hungary', 0, 0, 0);
 
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Canada', 0, 0, 0);
 INSERT INTO country_standings(country, golds, silvers, bronzes) VALUES ('Brazil', 0, 0, 0);
