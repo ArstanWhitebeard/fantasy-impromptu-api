@@ -37,9 +37,9 @@ var scrapeMedalsTable = function() {
             country = country.replace(/["']/g, "");
           else
             return;
-          var golds = parseInt(tds.slice(1).html());
-          var silvers = parseInt(tds.slice(2).html());
-          var bronzes = parseInt(tds.slice(3).html());
+          var golds = parseInt(tds.slice(-4).html());
+          var silvers = parseInt(tds.slice(-3).html());
+          var bronzes = parseInt(tds.slice(-2).html());
 
           medalsTable.standings.push({
             "country" : country,
