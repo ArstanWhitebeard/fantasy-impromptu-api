@@ -91,9 +91,8 @@ BEGIN
 
             SELECT SUM(cs.golds), SUM(cs.silvers), SUM(cs.bronzes), SUM(c.handicap)
             INTO total_golds, total_silvers, total_bronzes, total_handicaps
-            FROM country_standings cs, countries c
-            WHERE cs.country = c.name
-            AND cs.country IN (
+            FROM country_standings cs RIGHT OUTER JOIN countries c ON cs.country = c.name
+            WHERE c.name IN (
                 SELECT country FROM countries_on_teams WHERE team = this_team
             );
 
